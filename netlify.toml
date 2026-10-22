@@ -1,0 +1,18 @@
+# Netlify serves static files and cannot run the Docker stack (api + web containers), so this
+# deploys the browser-only demo — the same build as the GitHub/GitLab Pages demo
+# (.github/workflows/pages.yml). VITE_DEMO=1 boots straight into guest mode with a seeded
+# example history (frontend/src/lib/demo.js); everything stays in the visitor's browser.
+# The 180 px exercise stills and animations are staged next to the bundle from catalogue/media.
+[build]
+  command = "cd frontend && npm ci && npm run build && cd .. && node scripts/catalogue/stage-media.mjs frontend/dist"
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  VITE_DEMO = "1"
+
+# The service worker has to be re-checked on every visit so a new deploy is picked up.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
